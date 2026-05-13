@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution Exercice 10 - Forçage de Grafcet</title>
+    <style>
+        :root {
+            --bg-deep: #06040f;
+            --bg-card: #130d26;
+            --text-main: #e0d8f8;
+            --text-dim: #a59ac2;
+            --accent-violet: #8a2be2;
+            --accent-glow: #b400ff;
+            --accent-blue: #00d2ff;
+            --border-color: #3b286b;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(138, 43, 226, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(0, 210, 255, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: var(--accent-blue);
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        h1 { font-size: 2.5em; text-align: center; color: #fff; text-shadow: 0 0 20px var(--accent-glow); }
+
+        p {
+            font-size: 1.1em;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 32px rgba(138, 43, 226, 0.2), inset 0 0 0 1px rgba(138, 43, 226, 0.3);
+        }
+
+        .visual-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .grafcet-box {
+            background: rgba(0,0,0,0.4);
+            border: 1px dashed var(--accent-violet);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .grafcet-box code {
+            color: var(--accent-blue);
+            font-size: 1.2em;
+            display: block;
+            margin: 10px 0;
+            text-shadow: 0 0 8px rgba(0, 210, 255, 0.6);
+        }
+
+        /* Interactive Graph Styles */
+        .interactive-graph {
+            position: relative;
+            background: #0a0710;
+            border: 1px solid var(--accent-violet);
+            border-radius: 8px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 100%;
+            height: 300px;
+            overflow: visible;
+        }
+
+        .axis-line { stroke: var(--border-color); stroke-width: 1; }
+        .signal-line { fill: none; stroke-width: 3; stroke-linejoin: round; }
+        .signal-x { stroke: var(--accent-blue); }
+        .signal-i { stroke: var(--accent-violet); }
+        .signal-action { stroke: #ff007f; }
+        
+        .cursor-line {
+            stroke: #fff;
+            stroke-width: 2;
+            stroke-dasharray: 4;
+            pointer-events: none;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type=range] {
+            flex-grow: 1;
+            accent-color: var(--accent-glow);
+            cursor: pointer;
+        }
+
+        .status-panel {
+            background: rgba(138, 43, 226, 0.1);
+            border-left: 4px solid var(--accent-glow);
+            padding: 15px 20px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.1em;
+            min-height: 80px;
+        }
+
+        .highlight { color: #fff; font-weight: bold; text-shadow: 0 0 5px var(--accent-glow); }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Solution : Exercice 10 - Programmation des APIs</h1>
+    
+    <p>Cette solution détaille le comportement hiérarchique entre deux Grafcets (G1 et G2). Le Grafcet G1 agit comme le maître (partie commande supérieure) et impose des états au Grafcet G2 (partie opérative ou sous-programme) via des ordres de <strong>forçage</strong>. L'analyse se fait au travers de deux cas distincts : le forçage dans une situation donnée, et le forçage à vide (désactivation).</p>
+
+    <div class="card">
+        <h2>Partie 1 : Forçage de G2 dans l'étape 12 <code>F/G2 {12}</code></h2>
+        
+        <div class="visual-container">
+            <div class="grafcet-box">
+                <h3>G1 (Maître)</h3>
+                <p>État initial : X0</p>
+                <code>X0 → (I0.1) → X1</code>
+                <p>Action de X1 : <strong>F/G2 {12}</strong></p>
+            </div>
+            <div class="grafcet-box">
+                <h3>G2 (Esclave)</h3>
+                <p>État initial : X10</p>
+                <code>X10 → X11 → X12</code>
+            </div>
+        </div>
+
+        <p><strong>Explication détaillée :</strong> Au repos, G1 est à l'étape X0 et G2 est à son étape initiale X10. Lorsque la réceptivité <code>I0.1</code> passe à 1, G1 franchit sa transition et active l'étape <strong>X1</strong>. L'action associée à X1 est un ordre de forçage : <code>F/G2 {12}</code>. Cet ordre signifie que le Grafcet G2 est instantanément "arraché" de son état actuel (X10) et forcé à activer l'étape <strong>X12</strong>. Tant que X1 est active, G2 est maintenu (figé) dans l'étape 12, ignorant ses propres réceptivités. Lorsque X1 se désactive, le forçage s'arrête, et G2 reprend son fonctionnement normal à partir de X12, attendant la transition <code>I0.5</code> pour revenir à X10.</p>
+
+        <div class="interactive-graph">
+            <svg id="svg1" viewBox="0 0 800 300">
+                <line x1="50" y1="0" x2="50" y2="300" class="axis-line"/>
+                <text x="10" y="35" fill="var(--text-dim)">X0</text>
+                <text x="10" y="85" fill="var(--text-dim)">I0.1</text>
+                <text x="10" y="135" fill="var(--text-dim)">X1</text>
+                <text x="10" y="185" fill="var(--text-dim)">X10</text>
+                <text x="10" y="235" fill="var(--text-dim)">X12</text>
+                <text x="10" y="285" fill="var(--text-dim)">I0.5</text>
+
+                <line x1="50" y1="40" x2="800" y2="40" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="90" x2="800" y2="90" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="140" x2="800" y2="140" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="190" x2="800" y2="190" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="240" x2="800" y2="240" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="290" x2="800" y2="290" class="axis-line" stroke-dasharray="2,2"/>
+
+                <polyline class="signal-line signal-x" points="50,15 200,15 200,40 800,40" /> <polyline class="signal-line signal-i" points="50,90 200,90 200,65 250,65 250,90 800,90" /> <polyline class="signal-line signal-x" points="50,140 200,140 200,115 500,115 500,140 800,140" /> <polyline class="signal-line signal-x" points="50,165 200,165 200,190 650,190 650,165 800,165" /> <polyline class="signal-line signal-x" points="50,240 200,240 200,215 650,215 650,240 800,240" /> <polyline class="signal-line signal-i" points="50,290 650,290 650,265 700,265 700,290 800,290" /> <line id="cursor1" class="cursor-line" x1="50" y1="0" x2="50" y2="300" />
+            </svg>
+            
+            <div class="controls">
+                <span>Temps (t):</span>
+                <input type="range" id="slider1" min="50" max="780" value="50" oninput="updateGraph1(this.value)">
+            </div>
+            
+            <div class="status-panel" id="status1">
+                Ajustez le curseur temporel pour visualiser l'évolution du système.
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Partie 2 : Forçage à vide et Reprise <code>F/G2 { }</code></h2>
+        
+        <div class="visual-container">
+            <div class="grafcet-box">
+                <h3>G1 (Arrêt d'urgence)</h3>
+                <code>X0 → (I0.1) → X1</code>
+                <p>Action de X1 : <strong>F/G2 { }</strong></p>
+            </div>
+            <div class="grafcet-box">
+                <h3>G2 (Cycle normal)</h3>
+                <code>X10 → (I0.3) → X11 ...</code>
+                <p>G2 est en cours d'exécution.</p>
+            </div>
+        </div>
+
+        <p><strong>Explication détaillée :</strong> Dans ce deuxième cas, la syntaxe <code>F/G2 { }</code> ou <code>F/G2 ( )</code> correspond à un <strong>forçage à vide</strong> (désactivation totale). Ce type de commande est généralement utilisé pour les arrêts d'urgence. Lorsque <code>I0.1</code> active X1, G2 est instantanément vidé de tous ses jalons (jetons). L'étape en cours (ici X11) tombe à 0. <br><br><strong>Le problème de la Reprise :</strong> Lorsque G1 quitte l'étape X1, le forçage disparaît. Cependant, G2 reste "mort" (aucune étape active) car la fin d'un forçage à vide ne réinitialise pas le grafcet par magie. Pour prévoir la <strong>reprise de G2</strong>, il est impératif structurellement que G1 (ou un autre Grafcet de sécurité) envoie un nouvel ordre de forçage vers l'état initial (ex: <code>F/G2 {10}</code>) lors du réarmement du système.</p>
+
+        <div class="interactive-graph">
+            <svg id="svg2" viewBox="0 0 800 300">
+                <line x1="50" y1="0" x2="50" y2="300" class="axis-line"/>
+                <text x="10" y="35" fill="var(--text-dim)">X0</text>
+                <text x="10" y="85" fill="var(--text-dim)">I0.1</text>
+                <text x="10" y="135" fill="var(--text-dim)">X1</text>
+                <text x="10" y="185" fill="var(--text-dim)">X11</text>
+                <text x="10" y="235" fill="var(--text-dim)">X10</text>
+
+                <line x1="50" y1="40" x2="800" y2="40" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="90" x2="800" y2="90" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="140" x2="800" y2="140" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="190" x2="800" y2="190" class="axis-line" stroke-dasharray="2,2"/>
+                <line x1="50" y1="240" x2="800" y2="240" class="axis-line" stroke-dasharray="2,2"/>
+
+                <polyline class="signal-line signal-x" points="50,15 250,15 250,40 800,40" /> <polyline class="signal-line signal-i" points="50,90 250,90 250,65 300,65 300,90 800,90" /> <polyline class="signal-line signal-x" points="50,140 250,140 250,115 450,115 450,140 800,140" /> <polyline class="signal-line signal-action" points="50,190 100,190 100,165 250,165 250,190 800,190" /> 
+                
+                <polyline class="signal-line signal-x" points="50,215 100,215 100,240 800,240" /> 
+
+                <line id="cursor2" class="cursor-line" x1="50" y1="0" x2="50" y2="300" />
+            </svg>
+            
+            <div class="controls">
+                <span>Temps (t):</span>
+                <input type="range" id="slider2" min="50" max="780" value="50" oninput="updateGraph2(this.value)">
+            </div>
+            
+            <div class="status-panel" id="status2">
+                Ajustez le curseur temporel pour visualiser l'évolution du système.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateGraph1(val) {
+        document.getElementById('cursor1').setAttribute('x1', val);
+        document.getElementById('cursor1').setAttribute('x2', val);
+        
+        let status = document.getElementById('status1');
+        if (val < 200) {
+            status.innerHTML = "<span class='highlight'>Initialisation:</span> G1 est en X0. G2 tourne normalement et se trouve dans son étape initiale X10.";
+        } else if (val >= 200 && val < 500) {
+            status.innerHTML = "<span class='highlight'>Forçage Actif:</span> I0.1 a été détecté. X1 s'active. L'ordre F/G2{12} est envoyé. X10 chute immédiatement à 0, et G2 est forcé dans l'état X12.";
+        } else if (val >= 500 && val < 650) {
+            status.innerHTML = "<span class='highlight'>Maintien post-forçage:</span> X1 se désactive (fin de l'ordre). G2 reprend sa vie normale et reste en X12 en attendant sa prochaine transition (I0.5).";
+        } else if (val >= 650) {
+            status.innerHTML = "<span class='highlight'>Cycle G2:</span> I0.5 est validée. G2 évolue de façon autonome et repasse de l'étape X12 à X10.";
+        }
+    }
+
+    function updateGraph2(val) {
+        document.getElementById('cursor2').setAttribute('x1', val);
+        document.getElementById('cursor2').setAttribute('x2', val);
+        
+        let status = document.getElementById('status2');
+        if (val < 100) {
+            status.innerHTML = "<span class='highlight'>État initial:</span> G1 est en X0. G2 est en X10.";
+        } else if (val >= 100 && val < 250) {
+            status.innerHTML = "<span class='highlight'>Évolution G2:</span> G2 évolue normalement vers X11 (via I0.3 non représentée). X10 tombe à 0.";
+        } else if (val >= 250 && val < 450) {
+            status.innerHTML = "<span class='highlight'>Forçage à vide (Urgence):</span> I0.1 active X1. L'ordre F/G2{ } est émis. G2 est complètement désactivé. L'étape X11 chute à 0 instantanément.";
+        } else if (val >= 450) {
+            status.innerHTML = "<span class='highlight'>Système inerte:</span> Le forçage X1 est terminé, mais G2 reste vide. ⚠️ <strong>Action requise (Reprise):</strong> Un forçage d'initialisation sera nécessaire pour redémarrer G2.";
+        }
+    }
+
+    // Initialize text
+    updateGraph1(50);
+    updateGraph2(50);
+</script>
+
+</body>
+</html>
